@@ -3,8 +3,10 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import React, { useState, useEffect } from 'react';
 import * as tf from '@tensorflow/tfjs';
-import { CameraRoll, Permissions, ImagePicker } from 'expo';
+import * as ImagePicker from 'expo-image-picker';
+import * as Permissions from 'expo-permissions';
 import { bundleResourceIO } from '@tensorflow/tfjs-react-native';
+import { Camera } from 'expo-camera';
 
 const modelJson = require('./model/model.json');
 const modelWeights = require('./model/weights.bin');
@@ -22,6 +24,8 @@ export default function App() {
     Model().then((model) => {
       setModel(model);
     });
+
+    tf.ready();
 
     (async () => {
       const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
@@ -47,7 +51,7 @@ export default function App() {
   };
 
   const predict = async () => {
-    const imageAssetPath = Image.resolveAssetSource(image);
+    const imageAssetPath = image.resolveAssetSource(image);
     const response = await fetch(imageAssetPath.uri);
     const blob = await response.blob();
     const imageTensor = await tf.browser.fromPixels(blob);
@@ -60,13 +64,14 @@ export default function App() {
     const predictionIndex = predictionArray.indexOf(Math.max(...predictionArray));
 
     console.log(predictionIndex);
+    alert(predictionIndex);
   };
 
   return (
     <View style={styles.container}>
       <Text onPress={pickImage}>Pick an image from camera roll</Text>
       <Text onPress={predict}>Predict</Text>
-      <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
+      {/* <Image source={{ uri: image }} style={{ width: 200, height: 200 }} /> */}
       <StatusBar style="auto" />
     </View>
   );
