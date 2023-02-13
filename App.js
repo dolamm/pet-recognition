@@ -1,10 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Image } from 'react-native';
 
 import React, { useState, useEffect } from 'react';
 import * as tf from '@tensorflow/tfjs';
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
+import * as Location from 'expo-location';
 import { bundleResourceIO } from '@tensorflow/tfjs-react-native';
 import { Camera } from 'expo-camera';
 
@@ -28,7 +29,8 @@ export default function App() {
     tf.ready();
 
     (async () => {
-      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      // const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      const { status } = await Location.requestForegroundPermissionsAsync(); 
       if (status !== 'granted') {
         alert('Sorry, we need camera roll permissions to make this work!');
       }
@@ -43,15 +45,16 @@ export default function App() {
       quality: 1,
     });
 
-    if (!result.cancelled) {
-      setImage(result.uri);
+    if (!result.canceled) {
+      setImage(result.assets);
     }
 
     console.log(result);
   };
 
   const predict = async () => {
-    const imageAssetPath = image.resolveAssetSource(image);
+    const imageAssetPath = Image.resolveAssetSource(image);
+    console.log(imageAssetPath);
     const response = await fetch(imageAssetPath.uri);
     const blob = await response.blob();
     const imageTensor = await tf.browser.fromPixels(blob);
