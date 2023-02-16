@@ -12,7 +12,7 @@ import { Camera } from 'expo-camera';
 import { Base64Binary } from './utils';
 
 const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = Dimensions.get('window');
-console.log(DEVICE_WIDTH, DEVICE_HEIGHT);
+console.log('line 15',DEVICE_WIDTH, DEVICE_HEIGHT);
 
 const modelJson = require('./model/model.json');
 const modelWeights = require('./model/weights.bin');
@@ -60,7 +60,7 @@ export default function App() {
       setImage(result.assets[0]);
     }
 
-    console.log(result.assets[0]);
+    console.log('line 63',result.assets[0]);
     predict(result.assets[0]);
   };
 
@@ -80,23 +80,24 @@ export default function App() {
   const cropImage = async (image, mask) => {
     try {
         const { uri, width, height } = image;
+        console.log('line 79', width, height);
         const cropWidth = mask * (width / DEVICE_WIDTH);
         const cropHeight = mask * (height / DEVICE_HEIGHT);
         const actions = [
+            {
+                crop: {
+                    height: cropHeight,
+                    originX: (width - cropWidth) / 2,
+                    originY: (height - cropHeight) / 2,
+                    width: cropWidth,
+                },
+            },
             {
                 resize: {
                     width: 224,
                     height: 224,
                 },
             },
-            // {
-            //     crop: {
-            //         height: cropHeight,
-            //         originX: (width - cropWidth) / 2,
-            //         originY: (height - cropHeight) / 2,
-            //         width: cropWidth,
-            //     },
-            // },
         ];
 
         const saveOptions = {
@@ -127,7 +128,7 @@ export default function App() {
     // const rawImageData = await response.arrayBuffer();
 
     const croppedImage = await cropImage(image, 300);
-    console.log(croppedImage);
+    console.log('line 131',croppedImage);
     const imageTensor = convertBase64toTensor(croppedImage.base64);
 
     // const Uint8Array = new Uint8Array(rawImageData);
@@ -145,10 +146,10 @@ export default function App() {
 
     const prediction = model.predict(imageTensor);
     const predictionArray = await prediction.data();
-    console.log(predictionArray);
+    console.log('line 149',predictionArray);
     const predictionIndex = predictionArray.indexOf(Math.max(...predictionArray));
 
-    console.log(predictionIndex);
+    console.log('line 152', predictionIndex);
 
     setPresentedShape(RESULT_MAP[predictionIndex]);
     alert(presentedShape);
@@ -162,13 +163,13 @@ export default function App() {
       {/* <Image source={{ uri: image }} style={{ width: 200, height: 200 }} /> */}
       {/* <StatusBar style="auto" /> */}
 
-      {/* <Camera
+      <Camera
         ref={cameraRef}
         style={styles.camera}
         type={Camera.Constants.Type.back}
         autoFocus={true}
         whiteBalance={Camera.Constants.WhiteBalance.auto}></Camera>
-      <Pressable onPress={() => imageCapture()} style={styles.captureButton} ></Pressable> */}
+      <Pressable onPress={() => imageCapture()} style={styles.captureButton} ></Pressable>
 
     </View>
   );
