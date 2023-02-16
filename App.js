@@ -1,13 +1,18 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, Dimensions, Pressable } from 'react-native';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import * as tf from '@tensorflow/tfjs';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { bundleResourceIO, decodeJpeg } from '@tensorflow/tfjs-react-native';
 import { Camera } from 'expo-camera';
-import { atob } from 'react-native-quick-base64';
+
+import { Base64Binary } from './utils';
+
+const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = Dimensions.get('window');
+console.log(DEVICE_WIDTH, DEVICE_HEIGHT);
 
 const modelJson = require('./model/model.json');
 const modelWeights = require('./model/weights.bin');
@@ -17,9 +22,14 @@ const Model = async () => {
   return model;
 };
 
+const RESULT_MAP = ['dog', 'Cat', 'Mouse'];
+
 export default function App() {
   const [model, setModel] = useState(null);
   const [image, setImage] = useState(null);
+  const [presentedShape, setPresentedShape] = useState('');
+
+  const cameraRef = useRef();
 
   useEffect(() => {
     Model().then((model) => {
@@ -43,47 +53,123 @@ export default function App() {
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
-      // base64: true,
+      base64: true,
     });
 
     if (!result.canceled) {
       setImage(result.assets[0]);
     }
 
-    console.log(result.assets[0].uri);
+    console.log(result.assets[0]);
   };
 
-  const predict = async () => {
+  const imageCapture = async () => {
+    let result = await cameraRef.current.takePictureAsync({
+        base64: true,
+      });
+
+    console.log(result);
+    // predict(result);
+    const croppedImg = await cropImage(result, 0.8);
+    console.log('line 71',croppedImg);
+    
+    predict(result);
+    };
+
+  const cropImage = async (image, mask) => {
+    try {
+        const { uri, width, height } = image;
+        console.log(uri, width, height);
+    const cropWidth = mask * (width / DEVICE_WIDTH);
+    const cropHeight = mask * (height / DEVICE_HEIGHT);
+    const actions = [
+        {
+            resize: {
+                width: 224,
+                height: 224,
+            },
+        },
+        // {
+        //     crop: {
+        //         height: cropHeight,
+        //         originX: (width - cropWidth) / 2,
+        //         originY: (height - cropHeight) / 2,
+        //         width: cropWidth,
+        //     },
+        // },
+    ];
+
+    const saveOptions = {
+        compress: 1,
+        format: ImageManipulator.SaveFormat.JPEG,
+        base64: true,
+    };
+
+    return await ImageManipulator.manipulateAsync(uri, actions, saveOptions);
+    } catch (error) {
+        console.log('Could not crop & resize photo', error);
+    }
+  }
+
+  const convertBase64toTensor = (base64) => {
+    const UintArray = Base64Binary.decode(base64);
+    const decodedImage = decodeJpeg(UintArray, 3);
+    return decodedImage.reshape([1, 224, 224, 3]);
+  }
+
+  const predict = async (image) => {
     // const decodeImage = atob(image);
     // console.log(decodeImage);
-    // const imageTensor = await tf.browser.fromPixels(decodeImage); 
-    const imageAssetPath = Image.resolveAssetSource(image);
-    const response = await fetch(imageAssetPath.uri, {}, { isBinary: true });
-    const rawImageData = await response.arrayBuffer();
+    // const imageTensor = await tf.browser.fromPixels(decodeImage);
+
+    // const imageAssetPath = Image.resolveAssetSource(image);
+    // const response = await fetch(imageAssetPath.uri, {}, { isBinary: true });
+    // const rawImageData = await response.arrayBuffer();
+
+    const croppedImage = await cropImage(image, 300);
+    console.log(croppedImage);
+    const imageTensor = convertBase64toTensor(croppedImage.base64);
+
     // const Uint8Array = new Uint8Array(rawImageData);
     // const imageTensor = decodeJpeg(rawImageData);
     // const imageTensor = await tf.browser.fromPixels(Uint8Array);
-    const imageTensor = tf.tensor( new Uint8Array(rawImageData) )
-    console.log('line 67',imageTensor);
-    const reshapedImage = tf.reshape(imageTensor, [224, 224, 3]);
-    const resizedImage = tf.image.resizeBilinear(imageTensor, [224, 224]);
-    const normalizedImage = tf.div(resizedImage, 255.0);
-    const batchedImage = normalizedImage.expandDims(0);
 
-    const prediction = model.predict(batchedImage);
+    // const imageTensor = tf.tensor( new Uint8Array(rawImageData) )
+    // imageTensor.reshape([1, 224, 224, 3]);
+    // console.log('line 67',imageTensor);
+
+    // const reshapedImage = tf.reshape(imageTensor, [224, 224, 3]);
+    // const resizedImage = tf.image.resizeBilinear(imageTensor, [224, 224]);
+    // const normalizedImage = tf.div(resizedImage, 255.0);
+    // const batchedImage = normalizedImage.expandDims(0);
+
+    const prediction = model.predict(imageTensor);
     const predictionArray = await prediction.data();
+    console.log(predictionArray);
     const predictionIndex = predictionArray.indexOf(Math.max(...predictionArray));
 
     console.log(predictionIndex);
-    alert(predictionIndex);
+
+    setPresentedShape(RESULT_MAP[predictionIndex]);
+    alert(presentedShape);
   };
 
   return (
     <View style={styles.container}>
       <Text onPress={pickImage}>Pick an image from camera roll</Text>
-      <Text onPress={predict}>Predict</Text>
+
+      {/* <Text onPress={predict}>Predict</Text> */}
       {/* <Image source={{ uri: image }} style={{ width: 200, height: 200 }} /> */}
       {/* <StatusBar style="auto" /> */}
+
+      <Camera
+        ref={cameraRef}
+        style={styles.camera}
+        type={Camera.Constants.Type.back}
+        autoFocus={true}
+        whiteBalance={Camera.Constants.WhiteBalance.auto}></Camera>
+      <Pressable onPress={() => imageCapture()} style={styles.captureButton} ></Pressable>
+
     </View>
   );
 }
@@ -94,5 +180,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  camera: {
+    width: '100%',
+    height: '100%',
+  },
+  captureButton: {
+    position: 'absolute',
+    left: Dimensions.get('screen').width / 2 - 50,
+    bottom: 40,
+    width: 100,
+    zIndex: 100,
+    height: 100,
+    backgroundColor: 'white',
+    borderRadius: 50,
   },
 });

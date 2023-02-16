@@ -14,6 +14,7 @@
     "expo": "~47.0.12",
     "expo-camera": "^13.1.0",
     "expo-gl": "~12.0.1",
+    "expo-image-manipulator": "^11.0.0",
     "expo-image-picker": "^14.1.0",
     "expo-location": "^15.0.1",
     "expo-permissions": "^14.0.0",
