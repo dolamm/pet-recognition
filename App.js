@@ -61,6 +61,7 @@ export default function App() {
     }
 
     console.log(result.assets[0]);
+    predict(result.assets[0]);
   };
 
   const imageCapture = async () => {
@@ -79,31 +80,30 @@ export default function App() {
   const cropImage = async (image, mask) => {
     try {
         const { uri, width, height } = image;
-        console.log(uri, width, height);
-    const cropWidth = mask * (width / DEVICE_WIDTH);
-    const cropHeight = mask * (height / DEVICE_HEIGHT);
-    const actions = [
-        {
-            resize: {
-                width: 224,
-                height: 224,
+        const cropWidth = mask * (width / DEVICE_WIDTH);
+        const cropHeight = mask * (height / DEVICE_HEIGHT);
+        const actions = [
+            {
+                resize: {
+                    width: 224,
+                    height: 224,
+                },
             },
-        },
-        // {
-        //     crop: {
-        //         height: cropHeight,
-        //         originX: (width - cropWidth) / 2,
-        //         originY: (height - cropHeight) / 2,
-        //         width: cropWidth,
-        //     },
-        // },
-    ];
+            // {
+            //     crop: {
+            //         height: cropHeight,
+            //         originX: (width - cropWidth) / 2,
+            //         originY: (height - cropHeight) / 2,
+            //         width: cropWidth,
+            //     },
+            // },
+        ];
 
-    const saveOptions = {
-        compress: 1,
-        format: ImageManipulator.SaveFormat.JPEG,
-        base64: true,
-    };
+        const saveOptions = {
+            compress: 1,
+            format: ImageManipulator.SaveFormat.JPEG,
+            base64: true,
+        };
 
     return await ImageManipulator.manipulateAsync(uri, actions, saveOptions);
     } catch (error) {
@@ -162,13 +162,13 @@ export default function App() {
       {/* <Image source={{ uri: image }} style={{ width: 200, height: 200 }} /> */}
       {/* <StatusBar style="auto" /> */}
 
-      <Camera
+      {/* <Camera
         ref={cameraRef}
         style={styles.camera}
         type={Camera.Constants.Type.back}
         autoFocus={true}
         whiteBalance={Camera.Constants.WhiteBalance.auto}></Camera>
-      <Pressable onPress={() => imageCapture()} style={styles.captureButton} ></Pressable>
+      <Pressable onPress={() => imageCapture()} style={styles.captureButton} ></Pressable> */}
 
     </View>
   );
