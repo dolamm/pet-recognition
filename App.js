@@ -16,6 +16,7 @@ console.log('line 15',DEVICE_WIDTH, DEVICE_HEIGHT);
 
 const modelJson = require('./model/model.json');
 const modelWeights = require('./model/weights.bin');
+const metaData = require('./model/metadata.json');
 
 const Model = async () => {
   const model = await tf.loadLayersModel(bundleResourceIO(modelJson, modelWeights));
@@ -72,7 +73,7 @@ export default function App() {
     console.log(result);
     // predict(result);
     const croppedImg = await cropImage(result, 0.8);
-    console.log('line 71',croppedImg);
+    console.log('line 71',croppedImg.width, croppedImg.height, croppedImg.uri);
     
     predict(result);
     };
@@ -119,32 +120,14 @@ export default function App() {
   }
 
   const predict = async (image) => {
-    // const decodeImage = atob(image);
-    // console.log(decodeImage);
-    // const imageTensor = await tf.browser.fromPixels(decodeImage);
-
-    // const imageAssetPath = Image.resolveAssetSource(image);
-    // const response = await fetch(imageAssetPath.uri, {}, { isBinary: true });
-    // const rawImageData = await response.arrayBuffer();
 
     const croppedImage = await cropImage(image, 300);
-    console.log('line 131',croppedImage);
+    console.log('line 131',croppedImage.uri, croppedImage.width, croppedImage.height);
+    setImage(croppedImage.uri);
     const imageTensor = convertBase64toTensor(croppedImage.base64);
-
-    // const Uint8Array = new Uint8Array(rawImageData);
-    // const imageTensor = decodeJpeg(rawImageData);
-    // const imageTensor = await tf.browser.fromPixels(Uint8Array);
-
-    // const imageTensor = tf.tensor( new Uint8Array(rawImageData) )
-    // imageTensor.reshape([1, 224, 224, 3]);
-    // console.log('line 67',imageTensor);
-
-    // const reshapedImage = tf.reshape(imageTensor, [224, 224, 3]);
-    // const resizedImage = tf.image.resizeBilinear(imageTensor, [224, 224]);
-    // const normalizedImage = tf.div(resizedImage, 255.0);
-    // const batchedImage = normalizedImage.expandDims(0);
-
-    const prediction = model.predict(imageTensor);
+    const normalizedImage = tf.div(imageTensor, 255.0);
+    
+    const prediction = model.predict(normalizedImage);
     const predictionArray = await prediction.data();
     console.log('line 149',predictionArray);
     const predictionIndex = predictionArray.indexOf(Math.max(...predictionArray));
@@ -153,6 +136,7 @@ export default function App() {
 
     setPresentedShape(RESULT_MAP[predictionIndex]);
     alert(presentedShape);
+    setPresentedShape('');
   };
 
   return (
@@ -163,6 +147,8 @@ export default function App() {
       {/* <Image source={{ uri: image }} style={{ width: 200, height: 200 }} /> */}
       {/* <StatusBar style="auto" /> */}
 
+      <Image source={{ uri: image }} style={styles.image} />
+
       <Camera
         ref={cameraRef}
         style={styles.camera}
@@ -170,7 +156,6 @@ export default function App() {
         autoFocus={true}
         whiteBalance={Camera.Constants.WhiteBalance.auto}></Camera>
       <Pressable onPress={() => imageCapture()} style={styles.captureButton} ></Pressable>
-
     </View>
   );
 }
@@ -184,7 +169,7 @@ const styles = StyleSheet.create({
   },
   camera: {
     width: '100%',
-    height: '100%',
+    height: '50%',
   },
   captureButton: {
     position: 'absolute',
@@ -193,7 +178,11 @@ const styles = StyleSheet.create({
     width: 100,
     zIndex: 100,
     height: 100,
-    backgroundColor: 'white',
+    backgroundColor: 'red',
     borderRadius: 50,
   },
+    image: {
+        width: 200,
+        height: 200,
+    },
 });
