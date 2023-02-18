@@ -1,7 +1,6 @@
 import { bundleResourceIO, decodeJpeg } from '@tensorflow/tfjs-react-native';
 import * as tf from '@tensorflow/tfjs';
 import { Base64Binary } from 'utils';
-
 const modelJson = require('model/model.json');
 const modelWeights = require('model/weights.bin');
 const metaData = require('model/metadata.json');
@@ -22,9 +21,7 @@ export default class KanjiPrediction{
         let model = await tf.loadLayersModel(bundleResourceIO(modelJson, modelWeights));
         return model;
     }
-    // async isReady(){
 
-    // }
     convertBase64toTensor(base64) {
         const UintArray = Base64Binary.decode(base64);
         let decodedImage = decodeJpeg(UintArray, 3);
@@ -38,7 +35,7 @@ export default class KanjiPrediction{
         const predictionArray = await prediction.data();
         const predictionIndex = predictionArray.indexOf(Math.max(...predictionArray));
         console.log('line 152', predictionIndex);
-        return RESULT_MAP[predictionIndex];
+        return metaData.labels[predictionIndex];
     }
 }
 
