@@ -20,29 +20,6 @@ export function ImageLibPicker() {
       setModel(new KanjiPrediction());
     })();
   }, []);
-  const resizeImage = async (image) => {
-      try {
-        const { uri, width, height } = image;
-        const actions = [
-            {
-                resize: {
-                    width: 224,
-                    height: 224,
-                },
-            },
-        ];
-
-        const saveOptions = {
-            compress: 1,
-            format: ImageManipulator.SaveFormat.JPEG,
-            base64: true,
-        };
-
-    return await ImageManipulator.manipulateAsync(uri, actions, saveOptions);
-    } catch (error) {
-        console.log('Could not crop & resize photo', error);
-    }
-  }
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -53,10 +30,8 @@ export function ImageLibPicker() {
       quality: 1,
       base64: true,
     });
-    let resizedImage = await resizeImage(result);
-    console.log('line 63',resizedImage);
-    setImage(resizedImage);
-    await model.KanjiPredict(resizedImage)
+    setImage(result);
+    await model.KanjiPredict(result)
     .then((res) => {
         console.log('line 37',res);
         alert(res);
