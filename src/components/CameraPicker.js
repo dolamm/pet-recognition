@@ -22,30 +22,6 @@ export function CameraPicker() {
     })();
   }, []);
 
-  const resizeImage = async (image) => {
-    try {
-      const { uri, width, height } = image;
-      const actions = [
-          {
-              resize: {
-                  width: 224,
-                  height: 224,
-              },
-          },
-      ];
-
-      const saveOptions = {
-          compress: 1,
-          format: ImageManipulator.SaveFormat.JPEG,
-          base64: true,
-      };
-
-  return await ImageManipulator.manipulateAsync(uri, actions, saveOptions);
-  } catch (error) {
-      console.log('Could not crop & resize photo', error);
-  }
-}
-
     const imageCapture = async () => {
     let result = await cameraRef.current.takePictureAsync({
         width: 224,
@@ -66,7 +42,6 @@ export function CameraPicker() {
     }
   
     if (!cameraPermission.granted) {
-      // Camera permissions are not granted yet
       return (
         <View style={styles.container}>
           <Text style={{ textAlign: 'center' }}>We need your permission to show the camera</Text>
@@ -113,7 +88,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
     image: {
-        width: 200,
-        height: 200,
+        width: 224,
+        height: 224,
     },
 });

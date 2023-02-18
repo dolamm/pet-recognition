@@ -32,9 +32,19 @@ export default class KanjiPrediction{
     }
 
     async resizeImage (image) {
-        const uri = image.uri;
+        const {width, height, uri} = image;
+        let min = Math.min(width, height);
+        let center_ratio = (Math.max(width, height) - min)/2;
         try {
           const actions = [
+            {
+                crop: {
+                    originX: width > height ? center_ratio : 0,
+                    originY: width < height ? center_ratio : 0,
+                    width: min,
+                    height: min,
+                },
+            },
               {
                   resize: {
                       width: 224,
@@ -69,27 +79,3 @@ export default class KanjiPrediction{
         return metaData.labels[predictionIndex];
     }
 }
-
-// export const convertBase64toTensor = (base64) => {
-//     const UintArray = Base64Binary.decode(base64);
-//     let decodedImage = decodeJpeg(UintArray, 3);
-//     decodedImage = tf.image.resizeBilinear(decodedImage, [224, 224]);
-//     return decodedImage.reshape([1, 224, 224, 3]);
-// }
-
-// export const KanjiModel = async () => {
-//   const model = await tf.loadLayersModel(bundleResourceIO(modelJson, modelWeights));
-//   return model;
-// };
-
-// export const KanjiPredict = async (model, image) => {
-//     const imageTensor = convertBase64toTensor(image.base64);
-//     const normalizedImage = tf.div(imageTensor, 255.0);
-    
-//     const prediction = model.predict(normalizedImage);
-//     const predictionArray = await prediction.data();
-//     const predictionIndex = predictionArray.indexOf(Math.max(...predictionArray));
-//     console.log('line 152', predictionIndex);
-//     return RESULT_MAP[predictionIndex];
-
-// };

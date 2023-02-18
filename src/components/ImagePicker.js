@@ -36,8 +36,6 @@ export function ImageLibPicker() {
         console.log('line 37',res);
         alert(res);
     });
-    // console.log('line 63',result.assets[0]);
-    // predict(result.assets[0]);
   };
 
 
@@ -73,7 +71,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
     image: {
-        width: 200,
-        height: 200,
+        width: 244,
+        height: 244,
     },
 });
