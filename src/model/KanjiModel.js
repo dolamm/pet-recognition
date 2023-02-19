@@ -2,7 +2,8 @@ import { bundleResourceIO, decodeJpeg } from '@tensorflow/tfjs-react-native';
 import * as tf from '@tensorflow/tfjs';
 import { Base64Binary } from 'utils';
 import * as ImageManipulator from 'expo-image-manipulator';
-
+import { storeData } from 'components/Store';
+import { Alert } from 'react-native';
 const modelJson = require('model/model.json');
 const modelWeights = require('model/weights.bin');
 const metaData = require('model/metadata.json');
@@ -16,6 +17,7 @@ export default class KanjiPrediction{
         this.initModel().then((model) => {
             this.model = model;
         });
+        this.resultPredict = null;
     }
     async initModel() {
         let model = await tf.loadLayersModel(bundleResourceIO(modelJson, modelWeights));
@@ -64,6 +66,24 @@ export default class KanjiPrediction{
         const predictionArray = await prediction.data();
         const predictionIndex = predictionArray.indexOf(Math.max(...predictionArray));
         console.log('line 152', predictionIndex);
-        return metaData.labels[predictionIndex];
+        this.resultPredict = metaData.labels[predictionIndex];
+        return this.resultPredict;
+    }
+    async Notification(item){
+        Alert.alert(
+            "Kanji Prediction Completed",
+            `${item.kanji}\nhán việt:${this.resultPredict.phienam}\nonyomi:${item.onyomi}\nkunyomi:${item.kunyomi}\ný nghĩa:${item.meaning}\nmeaning:${item.eng}`,
+            [
+              { text: "Save Result", onPress: () => this.StoreResult(item) }
+            ],
+            { cancelable: true }
+        );
+    }
+    async StoreResult(item) {
+        console.log("model.js" + item)
+        await storeData(item).
+        then((res) => {
+            console.log(res);
+        });
     }
 }
