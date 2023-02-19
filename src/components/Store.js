@@ -1,10 +1,10 @@
-import {AsyncStorage} from '@react-native-async-storage/async-storage';
+import {AsyncStorage} from 'react-native';
 
 export const storeData = async (value) => {
     let key = Date.now().toString()
     try {
         value.key = key
-        let data = JSON.stringify(data);
+        let data = JSON.stringify(value);
         console.log("Store.js"+ data)
         await AsyncStorage.setItem(
             key,
@@ -37,10 +37,16 @@ export const removeData = async (key) => {
 export const getAllItems = async () => {
     try {
         const keys = await AsyncStorage.getAllKeys()
+        console.log('line 40',keys)
         const items = await AsyncStorage.multiGet(keys)
-        // return items
-        console.log(items)
-        return Json.parse(items)
+        console.log('line 43',items)
+
+        for (let i = 0; i < items.length; i++) {
+            items[i][1] = JSON.parse(items[i][1])
+            console.log('line 47',items[i][1])
+        }
+        
+        return JSON.parse(items)
     } catch (error) {
         console.log(error)
     }
