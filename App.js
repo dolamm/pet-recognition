@@ -1,26 +1,26 @@
 import { NavigationContainer } from '@react-navigation/native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
 import {CameraPicker} from 'components/CameraPicker.js';
 import { ImageLibPicker } from 'components/ImagePicker.js'
-import {View, Text} from 'react-native';
-const Drawer = createDrawerNavigator();
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-function Welcome () {
-  return (
-    <View>
-      <Text>Welcome</Text>
-    </View>
-  )
-}
+const Tab = createMaterialBottomTabNavigator();
 
 export default function App (){
   return (
     <NavigationContainer>
-      <Drawer.Navigator initialRouteName="Welcome">
-        <Drawer.Screen name="Welcome" component={Welcome} />
-        <Drawer.Screen name="Camera" component={CameraPicker} />
-        <Drawer.Screen name="Image Library" component={ImageLibPicker} />
-      </Drawer.Navigator>
+      <Tab.Navigator>
+        <Tab.Screen name="Camera" component={CameraPicker} options={{
+          tabBarIcon: ({color}) => (
+            <MaterialCommunityIcons name="camera" color={color} size={26} />
+          ),
+        }} />
+        <Tab.Screen name="Image Library" component={ImageLibPicker} options={{
+          tabBarIcon: ({color}) => (
+            <MaterialCommunityIcons name="image" color={color} size={26} />
+          ),
+        }} />
+      </Tab.Navigator>
     </NavigationContainer>
   )
 }

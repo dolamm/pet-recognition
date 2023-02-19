@@ -37,7 +37,6 @@ export function ImageLibPicker() {
         alert(res);
     });
     // console.log('line 63',result.assets[0]);
-    // predict(result.assets[0]);
   };
 
 
