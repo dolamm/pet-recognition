@@ -10,6 +10,7 @@ module.exports = function(api) {
             model: './src/model',
             utils: './utils',
             components: './src/components/',
+            config: './src/config',
           }
         }
       ],

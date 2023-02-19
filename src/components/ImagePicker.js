@@ -34,6 +34,7 @@ export function ImageLibPicker() {
     await model.KanjiPredict(result)
     .then((res) => {
         console.log('line 37',res);
+        res.uri = result.uri;
         model.Notification(res);
     });
     // console.log('line 63',result.assets[0]);

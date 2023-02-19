@@ -1,11 +1,10 @@
 import {AsyncStorage} from 'react-native';
 
 export const storeData = async (value) => {
-    let key = Date.now().toString()
+    let key = new Date().getTime().toString();
     try {
-        value.key = key
+        value.key = key;
         let data = JSON.stringify(value);
-        console.log("Store.js"+ data)
         await AsyncStorage.setItem(
             key,
             data
@@ -13,6 +12,7 @@ export const storeData = async (value) => {
     } catch (error) {
         console.log(error)
     }
+    return "Save success!"
 }
 
 export const getData = async (key) => {
@@ -36,17 +36,23 @@ export const removeData = async (key) => {
 
 export const getAllItems = async () => {
     try {
-        const keys = await AsyncStorage.getAllKeys()
-        console.log('line 40',keys)
-        const items = await AsyncStorage.multiGet(keys)
-        console.log('line 43',items)
+        let keys = await AsyncStorage.getAllKeys()
+        console.log(keys)
+        const data = await AsyncStorage.multiGet(keys)
+        let all = [];
+        data.map((result, i, data) => {
+            let value = JSON.parse(data[i][1]);
+            all.push(value);
+        })
+        return all;
+    } catch (error) {
+        console.log(error)
+    }
+}
 
-        for (let i = 0; i < items.length; i++) {
-            items[i][1] = JSON.parse(items[i][1])
-            console.log('line 47',items[i][1])
-        }
-        
-        return JSON.parse(items)
+export const clearAll = async () => {
+    try {
+        await AsyncStorage.clear()
     } catch (error) {
         console.log(error)
     }

@@ -4,6 +4,7 @@ import { Base64Binary } from 'utils';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { storeData } from 'components/Store';
 import { Alert } from 'react-native';
+
 const modelJson = require('model/model.json');
 const modelWeights = require('model/weights.bin');
 const metaData = require('model/metadata.json');
@@ -65,7 +66,6 @@ export default class KanjiPrediction{
         const prediction = this.model.predict(normalizedImage);
         const predictionArray = await prediction.data();
         const predictionIndex = predictionArray.indexOf(Math.max(...predictionArray));
-        console.log('line 152', predictionIndex);
         this.resultPredict = metaData.labels[predictionIndex];
         return this.resultPredict;
     }
@@ -80,10 +80,9 @@ export default class KanjiPrediction{
         );
     }
     async StoreResult(item) {
-        console.log("model.js" + item)
-        await storeData(item).
+        await storeData (item).
         then((res) => {
-            console.log(res);
+            alert(res)
         });
     }
 }

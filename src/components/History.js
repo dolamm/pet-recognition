@@ -8,32 +8,24 @@ export function History() {
         getAllItems().then((items) => {
             setHistory(items);
         });
+
     }, []);
 
-    const renderItem = ( {item} ) => {
+    const RenderItem = ( {item} ) => {
             <View style={styles.item}>
                 <Image source={{ uri: item.uri }} style={styles.image} />
-                <Text style={styles.itemText}>{item.text}</Text>
+                <Text style={styles.itemText}>{item.kanji}</Text>
             </View>
     }
-    
+
     return (
-        history == null ? (
-            <View style={styles.container}>
-                <Text style={styles.title}>History</Text>
-                <Text>No history</Text>
-            </View>
-        )
-        :
-        (
             <View style={styles.container}>
             <Text style={styles.title}>History</Text>
             <FlatList
                 data={history}
-                renderItem={(item)=> <renderItem item={item} />}
+                renderItem={(item)=> <RenderItem item={item} />}
             />
         </View>
-        )
     );
 }
 

@@ -56,7 +56,7 @@ export function CameraPicker() {
     setImage(result.uri);
     await model.KanjiPredict(result)
     .then((res) => {
-        console.log('line 37',res);
+        res.uri = result.uri;
         model.Notification(res);
     });
     };
