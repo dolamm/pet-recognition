@@ -1,34 +1,39 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, Image } from "react-native";
-import { getData, getAllItems } from "../../Store";
-
-
-export default function History() {
+import { View, Text, FlatList, Image, StyleSheet } from "react-native";
+import { getData, getAllItems } from "./Store";
+export function History() {
     const [history, setHistory] = useState([]);
     
     useEffect(() => {
         getAllItems().then((items) => {
-        setHistory(items);
+            setHistory(items);
         });
     }, []);
 
-    renderItem = ({ item }) => {
-        return (
+    const renderItem = ( {item} ) => {
             <View style={styles.item}>
                 <Image source={{ uri: item.uri }} style={styles.image} />
                 <Text style={styles.itemText}>{item.text}</Text>
             </View>
-        )
     }
     
     return (
-        <View style={styles.container}>
-        <Text style={styles.title}>History</Text>
-        <FlatList
-            data={history}
-            renderItem={renderItem}
-        />
+        history == null ? (
+            <View style={styles.container}>
+                <Text style={styles.title}>History</Text>
+                <Text>No history</Text>
+            </View>
+        )
+        :
+        (
+            <View style={styles.container}>
+            <Text style={styles.title}>History</Text>
+            <FlatList
+                data={history}
+                renderItem={(item)=> <renderItem item={item} />}
+            />
         </View>
+        )
     );
 }
 
