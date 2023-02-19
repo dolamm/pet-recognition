@@ -3,7 +3,9 @@ import {CameraPicker} from 'components/CameraPicker.js';
 import { ImageLibPicker } from 'components/ImagePicker.js'
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 import { History } from 'components/History.js';
+
 const Tab = createMaterialBottomTabNavigator();
 
 export default function App (){
@@ -25,6 +27,7 @@ export default function App (){
             <MaterialCommunityIcons name="history" color={color} size={26} />
           ),
         }} />
+
       </Tab.Navigator>
     </NavigationContainer>
   )
