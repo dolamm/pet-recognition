@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, Image, StyleSheet } from "react-native";
-import { getData, getAllItems } from "./Store";
+import { View, Text, FlatList, Image, StyleSheet, Table } from "react-native";
+import { getData, getAllItems, clearAll } from "./Store";
 export function History() {
-    const [history, setHistory] = useState([]);
+    const [history, setHistory] = useState('');
     
     useEffect(() => {
-        getAllItems().then((items) => {
-            setHistory(items);
+        getAllItems().then((res) => {
+            setHistory(res);
         });
-
     }, []);
-
+    console.log('line 18', history);
     const RenderItem = ( {item} ) => {
             <View style={styles.item}>
                 <Image source={{ uri: item.uri }} style={styles.image} />
@@ -21,10 +20,22 @@ export function History() {
     return (
             <View style={styles.container}>
             <Text style={styles.title}>History</Text>
-            <FlatList
+            {/* <FlatList
                 data={history}
                 renderItem={(item)=> <RenderItem item={item} />}
-            />
+                keyExtractor={(item) => item.key}
+
+            /> */}
+            {
+                history == null && <Text>No history</Text>
+            }
+            {
+                history && history.map((item) => {
+                    return (
+                        <RenderItem item={item}/>
+                    )
+                })
+            }
         </View>
     );
 }
@@ -40,6 +51,7 @@ const styles = StyleSheet.create({
         fontSize: 30,
         fontWeight: 'bold',
         marginBottom: 20,
+        marginTop: 20
     },
     item: {
         flexDirection: 'row',
