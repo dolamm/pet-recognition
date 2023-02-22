@@ -74,7 +74,8 @@ export default class KanjiPrediction{
             "Kanji Prediction Completed",
             `${item.kanji}\nhán việt:${this.resultPredict.phienam}\nonyomi:${item.onyomi}\nkunyomi:${item.kunyomi}\ný nghĩa:${item.meaning}\nmeaning:${item.eng}`,
             [
-              { text: "Save Result", onPress: () => this.StoreResult(item) }
+              { text: "Save Result", onPress: () => this.StoreResult(item) },
+              {text: "Cancel", onPress: () => console.log("Cancel Pressed")}
             ],
             { cancelable: true }
         );
